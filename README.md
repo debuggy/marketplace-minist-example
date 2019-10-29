@@ -1,5 +1,7 @@
 # MINIST Example of OpenPAI Marketplace
 
+An example of MINIST model.
+
 ## Steps
 
 1. Download MINIST dataset:
