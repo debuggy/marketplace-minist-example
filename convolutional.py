@@ -1,30 +1,58 @@
 # coding: utf-8
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
+import argparse
 
+
+WORK_DIRECTORY = None
+BATCH_SIZE = 50
+NUM_EPOCHS = 10
 
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
 
-
 def bias_variable(shape):
     initial = tf.constant(0.1, shape=shape)
     return tf.Variable(initial)
 
-
 def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
-
 
 def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                           strides=[1, 2, 2, 1], padding='SAME')
 
-
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--input_dir',
+        type=str,
+        default='MNIST_data/',
+        help='Directory to put the input data.')
+    parser.add_argument(
+        '--model_dir',
+        type=str,
+        default='output',
+        help='Directory to put the checkpoint files.')
+    parser.add_argument(
+        '--export_dir',
+        type=str,
+        default='export',
+        help='Directory to put the savedmodel files.')
+    parser.add_argument(
+        '--epochs',
+        type=int,
+        default='10',
+        help='Epoch.')
+
+    FLAGS, unparsed = parser.parse_known_args()
+    WORK_DIRECTORY = FLAGS.input_dir
+    NUM_EPOCHS = FLAGS.epochs
+
     # 读入数据
-    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+    mnist = input_data.read_data_sets(WORK_DIRECTORY, one_hot=True)
+
     # x为训练图像的占位符、y_为训练图像标签的占位符
     x = tf.placeholder(tf.float32, [None, 784])
     y_ = tf.placeholder(tf.float32, [None, 10])
@@ -73,7 +101,9 @@ if __name__ == '__main__':
     sess.run(tf.global_variables_initializer())
 
     # 训练20000步
-    for i in range(20000):
+    train_set_size = mnist.train.labels.shape[0]
+    for i in range(int(train_set_size * NUM_EPOCHS) // BATCH_SIZE):
+        #20000):
         batch = mnist.train.next_batch(50)
         # 每100步报告一次在验证集上的准确度
         if i % 100 == 0:
